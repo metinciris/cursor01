@@ -69,18 +69,87 @@
       font-weight: bold;
       min-height: 1.5em;
     }
+    /* Overlay Ekranlar */
+    .overlay {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #f5f5f5;
+      z-index: 1000;
+    }
+    .mode-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .mode-btn, #playAgain {
+      padding: 15px 25px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background: #28a745;
+      color: #fff;
+    }
+    .mode-btn:hover, #playAgain:hover { opacity: 0.9; }
+
+    /* Progress Bar */
+    #progressContainer {
+      width: 90vw;
+      max-width: 1000px;
+      height: 20px;
+      background: #ddd;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    #progressBar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg,#ffc107,#28a745);
+      transition: width 0.3s ease;
+    }
   </style>
 </head>
 <body>
-  <h1>Direksiyon Sınavı – Hata Renk Oyunu</h1>
-  <div id="score">Puan: 0</div>
-  <div id="question">Yükleniyor...</div>
-  <div class="buttons">
-    <button class="color-btn" data-color="MAVİ">Mavi</button>
-    <button class="color-btn" data-color="SARI">Sarı</button>
-    <button class="color-btn" data-color="KIRMIZI">Kırmızı</button>
+  <!-- Başlangıç Ekranı -->
+  <div id="startScreen" class="overlay">
+    <h1>Direksiyon Sınavı – Hata Renk Oyunu</h1>
+    <p>Lütfen bir oyun modu seçin:</p>
+    <div class="mode-buttons">
+      <button class="mode-btn" data-count="10">Mini Oyun (10 Soru)</button>
+      <button class="mode-btn" data-count="20">Standart Oyun (20 Soru)</button>
+      <button class="mode-btn" data-count="full">Maraton (Tüm Sorular)</button>
+    </div>
   </div>
-  <div id="feedback"></div>
+
+  <!-- Oyun Alanı -->
+  <div id="gameArea" style="display:none; width: 100%; flex-direction: column; align-items:center;">
+    <div id="progressContainer"><div id="progressBar"></div></div>
+    <h2 id="score">Puan: 0</h2>
+    <div id="question">Yükleniyor...</div>
+    <div class="buttons">
+      <button class="color-btn" data-color="MAVİ">Mavi</button>
+      <button class="color-btn" data-color="SARI">Sarı</button>
+      <button class="color-btn" data-color="KIRMIZI">Kırmızı</button>
+    </div>
+    <div id="feedback"></div>
+  </div>
+
+  <!-- Sonuç Ekranı -->
+  <div id="resultScreen" class="overlay" style="display:none;">
+    <h1>Oyun Bitti!</h1>
+    <p id="finalScore"></p>
+    <p id="trophy"></p>
+    <button id="playAgain">Tekrar Oyna</button>
+  </div>
 
   <script>
     // Tüm hata verileri (metin + renk)
@@ -124,7 +193,9 @@
     // Oyun durumu
     let currentError = null;
     let score = 0;
-    let remainingErrors = shuffle([...errors]);
+    let remainingErrors = [];
+    let totalQuestions = 0;
+    let answered = 0;
 
     // Basit karıştırma fonksiyonu
     function shuffle(arr) {
@@ -141,15 +212,68 @@
     const feedbackEl = document.getElementById("feedback");
     const buttons = document.querySelectorAll("button.color-btn");
 
-    // Yeni soru oluşturma
-    function newQuestion() {
+    // Oyun modunu başlat
+    const startScreen = document.getElementById("startScreen");
+    const resultScreen = document.getElementById("resultScreen");
+    const gameArea   = document.getElementById("gameArea");
+    const finalScoreEl = document.getElementById("finalScore");
+    const trophyEl = document.getElementById("trophy");
+    const progressBar = document.getElementById("progressBar");
+
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const count = btn.dataset.count === "full" ? errors.length : parseInt(btn.dataset.count);
+        startGame(count);
+      });
+    });
+
+    document.getElementById("playAgain").addEventListener("click", () => {
+      resultScreen.style.display = "none";
+      startScreen.style.display = "flex";
+    });
+
+    function startGame(count) {
+      score = 0;
+      answered = 0;
+      totalQuestions = count;
+      remainingErrors = errors.slice(0, count); // sıralı seçim
+      currentError = null;
+      startScreen.style.display = "none";
+      resultScreen.style.display = "none";
+      gameArea.style.display = "flex";
+      scoreEl.textContent = `Puan: ${score}`;
+      updateProgress();
+      nextQuestion();
+    }
+
+    // İlerleme çubuğu güncelle
+    function updateProgress() {
+      const percent = (answered / totalQuestions) * 100;
+      progressBar.style.width = percent + "%";
+    }
+
+    // Yeni soru
+    function nextQuestion() {
       if (remainingErrors.length === 0) {
-        // Tüm sorular bitti – yeniden başlat
-        remainingErrors = shuffle([...errors]);
+        endGame();
+        return;
       }
-      currentError = remainingErrors.pop();
+      currentError = remainingErrors.shift(); // sırayla al
       questionEl.textContent = currentError.text;
       feedbackEl.textContent = "";
+    }
+
+    function endGame() {
+      gameArea.style.display = "none";
+      finalScoreEl.textContent = `Toplam Puan: ${score}`;
+      const maxScore = totalQuestions * 10;
+      let trophy = "🏅";
+      if (score >= 0.8 * maxScore) trophy = "🏆 Altın Kupa";
+      else if (score >= 0.6 * maxScore) trophy = "🥈 Gümüş Kupa";
+      else if (score >= 0.4 * maxScore) trophy = "🥉 Bronz Kupa";
+      else trophy = "🙁 Kupasız";
+      trophyEl.textContent = trophy;
+      resultScreen.style.display = "flex";
     }
 
     // Buton tıklama işlemleri
@@ -163,18 +287,19 @@
           feedbackEl.textContent = "Doğru!";
           feedbackEl.style.color = "green";
         } else {
-          score -= 5; // yanlışsa -5 puan
+          score -= 50; // yanlışsa 5 doğruyu götürsün -> -50 puan
           feedbackEl.textContent = `Yanlış! Doğru cevap: ${currentError.color}`;
           feedbackEl.style.color = "#d33";
         }
         scoreEl.textContent = `Puan: ${score}`;
+        answered++;
+        updateProgress();
         // 1 saniye sonra yeni soru
-        setTimeout(newQuestion, 1000);
+        setTimeout(nextQuestion, 1000);
       });
     });
 
-    // Oyunu başlat
-    newQuestion();
+    // İlk ekranda bekle
   </script>
 </body>
 </html>
