@@ -69,6 +69,24 @@
       font-weight: bold;
       min-height: 1.5em;
     }
+
+    /* Animations */
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-8px); }
+      80% { transform: translateX(8px); }
+    }
+
+    .correctAnim { animation: pulse 0.5s ease; color: green !important; }
+    .wrongAnim { animation: shake 0.5s ease; color: #d33 !important; }
+    .shake { animation: shake 0.5s ease; }
     /* Overlay Ekranlar */
     .overlay {
       display: flex;
@@ -117,6 +135,9 @@
       transition: width 0.3s ease;
     }
   </style>
+
+  <!-- Konfeti kütüphanesi -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" defer></script>
 </head>
 <body>
   <!-- Başlangıç Ekranı -->
@@ -151,7 +172,7 @@
     <button id="playAgain">Tekrar Oyna</button>
   </div>
 
-  <script>
+  <script defer>
     // Tüm hata verileri (metin|renk) – tam liste
     const errorLines = `
 Aracın kaputunu açamıyor.|MAVİ
@@ -403,6 +424,11 @@ Aracı terk ederken kapıyı açmadan aynaları ile arkadan gelen trafiği kontr
       feedbackEl.textContent = "";
     }
 
+    function triggerConfetti() {
+      // basit konfeti
+      confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+    }
+
     function endGame() {
       gameArea.style.display = "none";
       finalScoreEl.textContent = `Toplam Puan: ${score}`;
@@ -414,6 +440,9 @@ Aracı terk ederken kapıyı açmadan aynaları ile arkadan gelen trafiği kontr
       else trophy = "🙁 Kupasız";
       trophyEl.textContent = trophy;
       resultScreen.style.display = "flex";
+
+      // konfeti sadece kupa varsa
+      if (!trophy.includes("Kupasız")) triggerConfetti();
     }
 
     // Buton tıklama işlemleri
@@ -422,14 +451,19 @@ Aracı terk ederken kapıyı açmadan aynaları ile arkadan gelen trafiği kontr
         const selected = btn.dataset.color;
         if (!currentError) return;
 
+        // Önce eski animasyon sınıflarını temizle
+        feedbackEl.classList.remove("correctAnim", "wrongAnim");
+        questionEl.classList.remove("shake");
+
         if (selected === currentError.color) {
-          score += 10; // doğruysa +10 puan
+          score += 10;
           feedbackEl.textContent = "Doğru!";
-          feedbackEl.style.color = "green";
+          feedbackEl.classList.add("correctAnim");
         } else {
-          score -= 50; // yanlışsa 5 doğruyu götürsün -> -50 puan
+          score -= 50;
           feedbackEl.textContent = `Yanlış! Doğru cevap: ${currentError.color}`;
-          feedbackEl.style.color = "#d33";
+          feedbackEl.classList.add("wrongAnim");
+          questionEl.classList.add("shake");
         }
         scoreEl.textContent = `Puan: ${score}`;
         answered++;
