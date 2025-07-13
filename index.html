@@ -152,43 +152,183 @@
   </div>
 
   <script>
-    // Tüm hata verileri (metin + renk)
-    const errors = [
-      // I. Bölüm
-      { text: "Aracın kaputunu açamıyor.", color: "MAVİ" },
-      { text: "Akünün yerini gösteremiyor.", color: "MAVİ" },
-      { text: "Motor yağı konulma yerini ve/veya yağ ölçüm çubuğunu gösteremiyor.", color: "MAVİ" },
-      { text: "Motor soğutma suyu deposunu gösteremiyor.", color: "MAVİ" },
-      { text: "Cam silecek suyunun konulma yerini gösteremiyor.", color: "MAVİ" },
-      { text: "Aracın bagajını açamıyor, stepne/araç kiti takımı, kriko, bijon anahtarı, reflektör ve ilkyardım çantasını gösteremiyor.", color: "MAVİ" },
-      { text: "Lastiklerin havalarının yeterli olup olmadığını gözle veya ayakla kontrol etmiyor.", color: "MAVİ" },
-      { text: "Yağ ve hararet göstergelerini gösteremiyor ve/veya hangi durumda tehlike ifade ettiklerini bilmiyor.", color: "MAVİ" },
-      { text: "Yakıt göstergesinin yerini gösteremiyor.", color: "MAVİ" },
-      { text: "Hız ve devir göstergelerini gösteremiyor.", color: "MAVİ" },
-      { text: "Uzun/kısa far, korna, cam silecek kolu, sinyal kolu ve diğer kumanda kollarını gösteremiyor.", color: "MAVİ" },
-      { text: "Araç içi aydınlatma lambalarını açıp kapatamıyor.", color: "MAVİ" },
-      { text: "Dış ve iç aynaların ayar yerlerini gösteremiyor.", color: "MAVİ" },
-      { text: "El frenini ve ayak fren pedalını gösteremiyor.", color: "MAVİ" },
-      { text: "Gaz ve debriyaj pedallarını gösteremiyor.", color: "MAVİ" },
-      { text: "Aracın kaç vitesli olduğunu bilmiyor.", color: "MAVİ" },
-      { text: "Otomatik vitesli araçlarda P, R, N ve D harflerinin ne anlama geldiğini bilmiyor.", color: "MAVİ" },
-      // II. Bölüm – sadece örnekler (tam listeyi ekleyebilirsiniz)
-      { text: "Araca bindiğinde koltuk ayarlarını kontrol etmiyor.", color: "SARI" },
-      { text: "Araca bindiğinde ayna ayarlarını kontrol etmiyor.", color: "SARI" },
-      { text: "Emniyet kemerini takmıyor.", color: "KIRMIZI" },
-      { text: "Alkol, uyuşturucu veya uyarıcı madde etkisinde olduğu gözlemlendi.", color: "KIRMIZI" },
-      { text: "Aracı çalıştırmadan önce debriyaja basmıyor veya vitesi boşa almıyor.", color: "SARI" },
-      { text: "Aracı çalıştıramıyor.", color: "SARI" },
-      { text: "Aracı hareket ettirmeden önce el frenini indirmiyor.", color: "SARI" },
-      { text: "Kalkış yapmadan önce aynaları ile trafiği kontrol etmiyor.", color: "KIRMIZI" },
-      { text: "Kalkış yaparken omuz üstü bakış ile kör nokta kontrolü yapmıyor.", color: "SARI" },
-      { text: "Kalkış yaparken zamanında ve/veya doğru yöne sinyal vermiyor.", color: "KIRMIZI" },
-      { text: "Belirlenmiş alanın dışına çıkıyor, konilere dokunuyor/çarpıyor.", color: "KIRMIZI" },
-      { text: "Kalkışta trafik akışı ile uyumlu hareket edemiyor.", color: "SARI" },
-      { text: "Koniler arasına tek hamlede veya ikinci hakkında giremiyor.", color: "KIRMIZI" },
-      { text: "Geri giderken aracın tamponu kaldırım hizasını geçiyor.", color: "KIRMIZI" },
-      // ... Devamını ekleyebilirsiniz ...
-    ];
+    // Tüm hata verileri (metin|renk) – tam liste
+    const errorLines = `
+Aracın kaputunu açamıyor.|MAVİ
+Akünün yerini gösteremiyor.|MAVİ
+Motor yağı konulma yerini ve/veya yağ ölçüm çubuğunu gösteremiyor.|MAVİ
+Motor soğutma suyu deposunu gösteremiyor.|MAVİ
+Cam silecek suyunun konulma yerini gösteremiyor.|MAVİ
+Aracın bagajını açamıyor, stepne/araç kiti takımı, kriko, bijon anahtarı, reflektör ve ilkyardım çantasını gösteremiyor.|MAVİ
+Lastiklerin havalarının yeterli olup olmadığını gözle veya ayakla kontrol etmiyor.|MAVİ
+Yağ ve hararet göstergelerini gösteremiyor ve/veya hangi durumda tehlike ifade ettiklerini bilmiyor.|MAVİ
+Yakıt göstergesinin yerini gösteremiyor.|MAVİ
+Hız ve devir göstergelerini gösteremiyor.|MAVİ
+Uzun/kısa far, korna, cam silecek kolu, sinyal kolu ve diğer kumanda kollarını gösteremiyor.|MAVİ
+Araç içi aydınlatma lambalarını açıp kapatamıyor.|MAVİ
+Dış ve iç aynaların ayar yerlerini gösteremiyor.|MAVİ
+El frenini ve ayak fren pedalını gösteremiyor.|MAVİ
+Gaz ve debriyaj pedallarını gösteremiyor.|MAVİ
+Aracın kaç vitesli olduğunu bilmiyor.|MAVİ
+Otomatik vitesli araçlarda P, R, N ve D harflerinin ne anlama geldiğini bilmiyor.|MAVİ
+Sigorta kutusunu gösteremiyor.|MAVİ
+Şarj girişini gösteremiyor.|MAVİ
+Şarj gösterge lambasını gösteremiyor.|MAVİ
+Araca bindiğinde koltuk ayarlarını kontrol etmiyor.|SARI
+Araca bindiğinde ayna ayarlarını kontrol etmiyor.|SARI
+Emniyet kemerini takmıyor.|KIRMIZI
+Alkol, uyuşturucu veya uyarıcı maddelerin etkisinde olduğu gözlemlendi.|KIRMIZI
+Aracı çalıştırmadan önce debriyaja basmıyor veya vitesi boşa almıyor.|SARI
+Aracı çalıştıramıyor.|SARI
+Araç çalıştığı halde kontak anahtarını marş kademesinde tutmaya devam ediyor.|SARI
+Aracı hareket ettirmeden önce el frenini indirmiyor.|SARI
+Kalkışı doğru vitesle yapmıyor, otomatik vitesli araçlarda kalkış yaparken vitesi D pozisyonuna getirmiyor.|SARI
+Kalkış yapmadan önce aynaları ile trafiği kontrol etmiyor.|KIRMIZI
+Kalkış yaparken omuz üstü bakış ile kör nokta kontrolü yapmıyor.|SARI
+Kalkış yaparken zamanında ve/veya doğru yöne sinyal vermiyor.|KIRMIZI
+Kalkış yaparken aracı sarsıyor.|SARI
+Kalkış yaparken motoru stop ettiriyor.|SARI
+Kalkışta trafik akışı ile uyumlu hareket edemiyor.|SARI
+Trafiği tehlikeye düşürecek şekilde hızlı ve kontrolsüz kalkış yapıyor.|KIRMIZI
+Kalkış yaptıktan sonra aracı doğru şeride konumlandıramıyor.|SARI
+Olası tehlikeleri algılayamıyor, araç kullanırken refleksleriyle tehlikeyi bertaraf edemiyor.|SARI
+Dönüş hareketine başlamadan önce zamanında ve doğru yöne sinyal vermiyor.|KIRMIZI
+Belirlenmiş alanın dışına çıkıyor, konilere dokunuyor/çarpıyor.|KIRMIZI
+Belirlenen alanda en fazla üç hamlede dönüşü tamamlayamıyor.|KIRMIZI
+Manevra yapma becerisi zayıf.|SARI
+Motoru stop ettiriyor (dar alanda dönüş).|SARI
+Olası tehlikeleri algılayamıyor (dar alanda dönüş).|SARI
+Park alanına yaklaşırken zamanında ve/veya doğru yöne sinyal vermiyor.|KIRMIZI
+Koniler arasına tek hamlede veya ikinci hakkında giremiyor.|KIRMIZI
+Koniler arasına girdikten sonra en fazla iki hamlede park edemiyor.|KIRMIZI
+Park ederken veya park alanından çıkarken kaldırıma veya konilere dokunuyor/çarpıyor.|KIRMIZI
+Geri giderken aracın tamponu kaldırım hizasını geçiyor.|KIRMIZI
+Kaldırıma 50 cm'den fazla açığa park ediyor.|KIRMIZI
+Kalkış yaparken motoru stop ettiriyor (park).|SARI
+Genel park etme becerisi zayıf.|SARI
+Park alanından çıkarken aynaları ile trafiği kontrol etmiyor.|KIRMIZI
+Park alanından çıkarken zamanında ve/veya doğru yöne sinyal vermiyor.|KIRMIZI
+Park alanından çıkarken omuz üstü bakış ile kör nokta kontrolü yapmıyor.|SARI
+Olası tehlikeleri algılayamıyor (park).|SARI
+Aracı geri vitese takamıyor.|SARI
+Geri giderken aracı şerit çizgileri içerisinde gezdiriyor.|SARI
+Geri giderken aracı şerit çizgilerine veya dubalara dokunduruyor/çarpıyor.|KIRMIZI
+Geri giderken aynalarla veya geriye dönerek arkadaki trafiği kontrol etmiyor.|KIRMIZI
+Aracı stop ettiriyor (geri düz).|SARI
+Kalkış yapmadan önce aynaları ile trafiği kontrol etmiyor (geri düz).|KIRMIZI
+Kalkış yapmadan önce omuz üstü bakış ile kör nokta kontrolü yapmıyor (geri düz).|SARI
+Kalkış yaparken zamanında ve/veya doğru yöne sinyal vermiyor (geri düz).|KIRMIZI
+Aracı geri vitese takamıyor (L dönüş).|SARI
+Geri giderken tek hamlede dönemiyor.|KIRMIZI
+Geri giderken veya çıkış yaparken lastikler şerit çizgisine temas ediyor, konilere veya kaldırıma dokunuyor/çarpıyor.|KIRMIZI
+Kalkış yaparken motoru stop ettiriyor (L dönüş).|SARI
+Dönüş hareketinden önce ve/veya dönüşü tamamlayıp tekrar yola çıkarken sinyal vermiyor.|KIRMIZI
+Dönüş hareketinden önce veya dönüşü tamamlayıp tekrar yola çıkarken aynaları ile trafiği kontrol etmiyor.|KIRMIZI
+Tekrar yola çıkmadan önce omuz üstü bakış ile kör nokta kontrolü yapmıyor.|SARI
+Vites değiştirirken debriyaj pedalına tam basmıyor.|SARI
+Vites değiştirirken gaz pedalını doğru kullanamıyor.|SARI
+Vites değiştirirken doğru sıralamaya uymuyor.|SARI
+Vites değiştirirken aracın kontrolünü kaybediyor.|KIRMIZI
+Seyir halindeyken yola bakmayı bırakıp vites koluna bakarak vites değiştiriyor.|KIRMIZI
+Gaz ve frene tam intibak edemiyor.|SARI
+Direksiyon simidini doğru pozisyonda tutmuyor.|SARI
+Aracı kontrol edemiyor, sağa sola savuruyor.|KIRMIZI
+Aracı şerit içinde gezdiriyor.|SARI
+Olası tehlikeleri algılayamıyor (direksiyon).|SARI
+Aracı şerit çizgilerinin içerisinde kullanamıyor, iki şeridi birden kullanıyor.|KIRMIZI
+Şerit değiştirmeden önce aynaları ile trafiği kontrol etmiyor.|KIRMIZI
+Şerit değiştirmeden önce omuz üstü bakış ile kör nokta kontrolü yapmıyor.|SARI
+Şerit değiştirmeden önce zamanında ve/veya doğru yöne sinyal vermiyor.|KIRMIZI
+Şeridini değiştirirken yoldaki kesik ve sürekli çizgilerin anlamlarına uygun hareket etmiyor.|SARI
+Emniyet şeridini ihlal ediyor.|KIRMIZI
+Sürekli sol şeridi işgal ederek araç kullanıyor.|SARI
+Olası tehlikeleri algılayamıyor (şerit).|SARI
+Kavşağa yaklaşırken yavaşlamıyor.|KIRMIZI
+Kavşağa yaklaşırken döneceği yöne uygun şeride zamanında girmiyor.|KIRMIZI
+Dönüş öncesinde zamanında ve/veya doğru yöne sinyal vermiyor.|KIRMIZI
+Kavşakta karşıdan ve yandan gelen araçları kontrol etmiyor.|KIRMIZI
+Kavşakta geçiş hakkı kurallarına uymuyor.|KIRMIZI
+Sağa sola dönüşlerden önce aynaları ile trafiği kontrol etmiyor.|KIRMIZI
+Sağa sola dönüşlerden önce omuz üstü bakış ile kör nokta kontrolü yapmıyor.|SARI
+Dönüşünü tamamladıktan sonra yönüne uygun şeride girmiyor.|SARI
+Olası tehlikeleri algılayamıyor (kavşak).|SARI
+Işıklı trafik cihazları, trafik levhaları ve diğer trafik işaretlerine uymuyor.|KIRMIZI
+Trafik polisini, yol ikaz ve değişikliklerini veya diğer yönlendirmeleri fark etmiyor.|KIRMIZI
+Araç kullanımı sırasında araç hakimiyetini ve trafik güvenliğini tehlikeye düşürecek düzeyde heyecanlanıyor/telaşlanıyor.|KIRMIZI
+Yaya ve okul geçitlerinde yayalara ve bisikletlilere geçiş hakkı vermiyor.|KIRMIZI
+Hemzemin geçitlerde geçiş kurallarına uymuyor.|KIRMIZI
+Geçiş üstünlüğüne sahip araçlara geçiş hakkı vermiyor.|KIRMIZI
+Araç seyir halindeyken iç ve dış aynalardan trafiğin akışını kontrol etmiyor.|SARI
+Takip mesafesini kurallara uygun olarak ayarlayamıyor.|KIRMIZI
+Güzergahı bilmiyor, güzergah dışına çıkıyor.|KIRMIZI
+Genel olarak araç kullanma becerisi zayıf.|KIRMIZI
+Duran/duraklayan veya park halindeki araca, kaldırıma ya da başka bir cisme çarpıyor.|KIRMIZI
+Aracı durdurırken veya hareket ettirirken stop ettiriyor.|SARI
+Trafik lambası sarı yanarken geçiyor.|SARI
+Aydınlatmanın yetersiz olduğu ortamlarda aracı şeride doğru konumlandıramıyor.|SARI
+Yolun durumuna göre uzun ve kısa farları yerinde kullanamıyor.|SARI
+Hava ve yol şartlarına uygun olarak aracın silecek/cam buharını çözmek için kumanda düğmelerini kullanamıyor.|SARI
+Yakın ilerisi görülmeyen kavşak, dönemeç ve tepe üstlerine yaklaşırken ışık uyarısı yapmıyor.|SARI
+Duraklama veya park yasağına uymuyor.|KIRMIZI
+Olası tehlikeleri algılayamıyor (seyir).|SARI
+Sollamaya başlamadan önce aynalar ile trafik kontrolü yapmıyor.|KIRMIZI
+Sollamaya başlamadan önce omuz üstü bakış ile kör nokta kontrolü yapmıyor.|SARI
+Sollamaya başlamadan önce zamanında ve/veya doğru yöne sinyal vermiyor.|KIRMIZI
+Sollama yaparken önündeki ve diğer şeritlerdeki araçları tehlikeye atıyor.|KIRMIZI
+Sollama yaparken kendi hızını ve diğer araçların hızlarını dikkate almıyor.|KIRMIZI
+Kendisini geçmek isteyen araç olduğunda geçilme kurallarına uymuyor.|KIRMIZI
+Geçişi güçleştirecek şekilde, geçiş yapan aracın şeridine giriyor.|KIRMIZI
+Geçilirken gerekmesi durumunda hızını azaltmıyor veya sabit tutmuyor.|SARI
+Geçen araca sesle, ışıkla veya el ile trafik adabına aykırı tepki gösteriyor.|SARI
+Olası tehlikeleri algılayamıyor (sollama).|SARI
+Hız levhalarına uymuyor, azami hız sınırını aşıyor.|KIRMIZI
+Yaya, okul, bisiklet geçitlerine yaklaşırken hızını azaltmıyor.|KIRMIZI
+Gereksiz yere fren yaparak trafiği tehlikeye düşürüyor.|KIRMIZI
+Trafiği tehlikeye düşürecek şekilde yavaş araç kullanıyor.|SARI
+Sürekli aynı vitesle araç kullanıyor, aracı uygun devirde ve hızda kullanamıyor, zamanında vites değiştirmiyor.|SARI
+Hızlanma ve yavaşlamalarda aracın hızını ayarlayamıyor.|SARI
+Çukura veya kasise uygun hızda giremiyor, hızını ayarlayamıyor.|SARI
+Olası tehlikeleri algılayamıyor (hız).|SARI
+Yola girmeden önce doğru şeride geçemiyor.|KIRMIZI
+Yola girmeden önce zamanında ve/veya doğru yöne sinyal vermiyor.|KIRMIZI
+Uygun hız ve vitesle yola giremiyor, dönüş yapamıyor.|KIRMIZI
+Sağa veya sola dönüşlerden önce aynaları ile trafiği kontrol etmiyor.|KIRMIZI
+Yolda aracı doğru konumlandıramıyor.|SARI
+Kısa veya uzun far kullanımını yapamıyor.|SARI
+Yolda oluşan kasis/çukurlara dikkat etmiyor, hızını ayarlayamıyor.|SARI
+Olası tehlikeleri algılayamıyor (tali yol).|SARI
+Aracı yüksek devirde kullanıyor.|SARI
+Kornayı gereksiz yere kullanıyor.|SARI
+Duruş ve kalkışları ani yapıyor, aracı ekonomik kullanmıyor.|SARI
+Sağ şeritte durmadan önce aynaları ile trafiği kontrol etmiyor.|KIRMIZI
+Sağ şeritte durmadan veya kalkış yapmadan önce sinyal vermiyor.|KIRMIZI
+Kalkış yapmadan önce aynaları ile trafiği kontroll etmiyor (eğimli).|KIRMIZI
+Kalkış yapmadan önce omuz üstü bakış ile kör nokta kontrolü yapmıyor (eğimli).|SARI
+Aracı hareket ettirirken 50 cm'den fazla geri kaydırıyor.|SARI
+Kalkış yaparken motoru stop ettiriyor (eğimli).|SARI
+Olası tehlikeleri algılayamıyor (eğimli yolda kalkış).|SARI
+Ani fren yapıp aracı durduramıyor.|KIRMIZI
+Ani fren yaptığında aracı stop ettiriyor.|SARI
+Kalkış yapmadan önce aynaları ile trafiği kontrol etmiyor (ani fren).|KIRMIZI
+Kalkış yapmadan önce sinyal vermiyor (ani fren).|KIRMIZI
+Kalkış yapmadan önce omuz üstü bakış ile kör nokta kontrolü yapmıyor (ani fren).|SARI
+Kalkış yaparken motoru stop ettiriyor (ani fren).|SARI
+Olası tehlikeleri algılayamıyor (ani fren).|SARI
+Duraklama veya park etmede sağ tarafa yanaşırken aynaları ile trafiği kontrol etmiyor.|KIRMIZI
+Duraklama veya park etmede sağ tarafa yanaşırken sinyal vermiyor.|KIRMIZI
+Duraklama veya park etmede şeridin sağına veya kaldırıma yeterince yanaşmıyor.|SARI
+Park etme esnasında kaldırıma dokunuyor/çarpıyor.|KIRMIZI
+Duruşu ani yaparak araçtakilerin güvenliğini tehlikeye düşürüyor.|SARI
+Aracı terketmeden önce el frenini çekmiyor.|SARI
+Aracı terketmeden önce motoru stop ettirmiyor.|SARI
+Otomatik vitesli araçlarda park esnasında aracı stop ettirmeden önce vitesi P pozisyonuna almıyor.|KIRMIZI
+Aracı terk ederken kapıyı açmadan aynaları ile arkadan gelen trafiği kontrol etmiyor.|SARI
+`;
+
+    const errors = errorLines.trim().split("\n").map(line => {
+      const [text, color] = line.split("|");
+      return { text: text.trim(), color: color.trim() };
+    });
 
     // Oyun durumu
     let currentError = null;
