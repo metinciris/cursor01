@@ -42,6 +42,42 @@
             opacity: 0.9;
         }
 
+        .header-counters {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .header-counter {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .header-counter.blue {
+            background: rgba(0, 123, 255, 0.3);
+            border-color: #007bff;
+        }
+
+        .header-counter.yellow {
+            background: rgba(255, 193, 7, 0.3);
+            border-color: #ffc107;
+        }
+
+        .header-counter.red {
+            background: rgba(220, 53, 69, 0.3);
+            border-color: #dc3545;
+        }
+
         .progress-container {
             background: rgba(255,255,255,0.2);
             border-radius: 20px;
@@ -298,6 +334,16 @@
             .counters-container {
                 grid-template-columns: repeat(4, minmax(120px, 1fr));
             }
+
+            .header-counters {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .header-counter {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
@@ -306,6 +352,20 @@
         <div class="header">
             <h1>🚗 Direksiyon Sınavı Simülasyon Oyunu</h1>
             <p>B Sınıfı Manuel Vites Sınavı - Türkiye</p>
+            <div class="header-counters">
+                <div class="header-counter blue">
+                    🔵 Mavi<br>
+                    <span id="headerBlueCount">0</span>/5
+                </div>
+                <div class="header-counter yellow">
+                    🟡 Sarı<br>
+                    <span id="headerYellowCount">0</span>/2
+                </div>
+                <div class="header-counter red">
+                    🔴 Kırmızı<br>
+                    <span id="headerRedCount">0</span>/1
+                </div>
+            </div>
         </div>
 
         <div class="progress-container">
@@ -344,9 +404,13 @@
                 this.blueErrors = 0;
                 this.correctAnswers = 0;
                 this.examFailed = false;
-                this.examAttempts = 0;
                 this.wrongAnswers = [];
                 this.answered = false;
+                
+                // Sınav istatistikleri
+                this.totalAttempts = window.totalAttempts || 0;
+                this.totalPassed = window.totalPassed || 0;
+                this.totalFailed = window.totalFailed || 0;
                 
                 this.sections = [
                     "🔧 Araç Bilgisi Sorgulama",
@@ -510,10 +574,16 @@
                 document.getElementById('progressText').textContent = 
                     `Soru ${this.currentQuestion + 1} / ${this.questions.length}`;
                 
+                // Alt sayaçları güncelle
                 document.getElementById('redCount').textContent = this.redErrors;
                 document.getElementById('yellowCount').textContent = this.yellowErrors;
                 document.getElementById('blueCount').textContent = this.blueErrors;
                 document.getElementById('correctCount').textContent = this.correctAnswers;
+                
+                // Header sayaçları güncelle
+                document.getElementById('headerRedCount').textContent = this.redErrors;
+                document.getElementById('headerYellowCount').textContent = this.yellowErrors;
+                document.getElementById('headerBlueCount').textContent = this.blueErrors;
             }
 
             showQuestion() {
@@ -570,7 +640,7 @@
                 
                 if (correct) {
                     this.correctAnswers++;
-                    this.showFeedback(true, "Doğru! 🎉 Bu hatanın kategorisini doğru bildiniz.");
+                    this.showFeedback(true, "Doğru! 🎉");
                 } else {
                     this.wrongAnswers.push({
                         question: question.text,
@@ -578,15 +648,13 @@
                         selected: selectedColor
                     });
                     
-                    const explanations = {
-                        red: "KIRMIZI HATA - Trafiği ciddi şekilde tehlikeye atan, tek seferde sınavdan kaldıran hatalar",
-                        yellow: "SARI HATA - Orta düzeyde hatalar, 2 tanesi sınavdan kaldırır",
-                        blue: "MAVİ HATA - Araç bilgisi eksiklikleri, 5 tanesi sınavdan kaldırır"
+                    const correctColors = {
+                        red: "🔴 Kırmızı",
+                        yellow: "🟡 Sarı", 
+                        blue: "🔵 Mavi"
                     };
                     
-                    this.showFeedback(false, `Yanlış! ❌<br><br>
-                        <strong>Doğru Cevap:</strong> ${explanations[question.correct]}<br><br>
-                        <strong>Seçtiğiniz:</strong> ${explanations[selectedColor]}`);
+                    this.showFeedback(false, `Yanlış! ❌<br><strong>Doğru cevap:</strong> ${correctColors[question.correct]}`);
                     
                     // Hata sayacını artır
                     if (question.correct === 'red') this.redErrors++;
@@ -629,13 +697,21 @@
             }
 
             showResults() {
+                this.totalAttempts++;
+                window.totalAttempts = this.totalAttempts;
+                
                 if (this.examFailed || this.redErrors >= 1 || this.yellowErrors >= 2 || this.blueErrors >= 5) {
-                    this.examAttempts++;
+                    this.totalFailed++;
+                    window.totalFailed = this.totalFailed;
                     this.showFailedResult();
-                } else if (this.wrongAnswers.length === 0) {
-                    this.showChampionResult();
                 } else {
-                    this.showPassedResult();
+                    this.totalPassed++;
+                    window.totalPassed = this.totalPassed;
+                    if (this.wrongAnswers.length === 0) {
+                        this.showChampionResult();
+                    } else {
+                        this.showPassedResult();
+                    }
                 }
             }
 
@@ -653,7 +729,12 @@
                         <h2>Sınavdan Kaldınız!</h2>
                         <p><strong>Kalma Nedeni:</strong> ${reasons.join(', ')}</p>
                         <p>Toplam Doğru: ${this.correctAnswers}/${this.questions.length}</p>
-                        <p>Sınav Deneme Sayısı: ${this.examAttempts}</p>
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                            <strong>📊 Sınav İstatistikleri:</strong><br>
+                            🎯 Toplam Deneme: ${this.totalAttempts}<br>
+                            ✅ Geçen: ${this.totalPassed}<br>
+                            ❌ Kalan: ${this.totalFailed}
+                        </div>
                         <button class="restart-btn" onclick="location.reload()">
                             🔄 Tekrar Dene
                         </button>
@@ -689,6 +770,12 @@
                             🟡 Sarı: ${this.yellowErrors}/2 | 
                             🔴 Kırmızı: ${this.redErrors}/1
                         </div>
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(40,167,69,0.1); border-radius: 10px;">
+                            <strong>📊 Sınav İstatistikleri:</strong><br>
+                            🎯 Toplam Deneme: ${this.totalAttempts}<br>
+                            ✅ Geçen: ${this.totalPassed}<br>
+                            ❌ Kalan: ${this.totalFailed}
+                        </div>
                         ${wrongAnswersHtml}
                         <button class="restart-btn" onclick="location.reload()">
                             🔄 Yeni Sınav
@@ -707,6 +794,12 @@
                         <p>Mükemmel! Tüm soruları doğru cevapladınız!</p>
                         <p>Toplam Doğru: ${this.correctAnswers}/${this.questions.length}</p>
                         <p>🎯 %100 Başarı Oranı</p>
+                        <div style="margin: 20px 0; padding: 15px; background: rgba(255,215,0,0.1); border-radius: 10px;">
+                            <strong>📊 Sınav İstatistikleri:</strong><br>
+                            🎯 Toplam Deneme: ${this.totalAttempts}<br>
+                            ✅ Geçen: ${this.totalPassed}<br>
+                            ❌ Kalan: ${this.totalFailed}
+                        </div>
                         <div style="font-size: 1.2rem; margin: 20px 0;">
                             Gerçek sınavda da bu başarıyı gösterebilirsiniz! 🚗✨
                         </div>
