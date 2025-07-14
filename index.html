@@ -1,160 +1,692 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <title>B Sınıfı Direksiyon Sınavı – Hata Renk Oyunu</title>
-  <style>
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f5f5f5;
-      margin: 0;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: #333;
-    }
-    h1 {
-      color: #222;
-    }
-    #question {
-      background: #fff;
-      border-radius: 8px;
-      padding: 20px;
-      max-width: 800px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-      margin-bottom: 30px;
-      text-align: center;
-      font-size: 1.2rem;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚗 Direksiyon Sınavı Simülasyon Oyunu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .buttons {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 30px;
-    }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
 
-    button.color-btn {
-      flex: 1;
-      padding: 15px 10px;
-      font-size: 1rem;
-      font-weight: bold;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      color: #fff;
-      transition: transform 0.1s;
-    }
-    button.color-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    }
-    button[data-color="MAVİ"] { background: #007BFF; }
-    button[data-color="SARI"] { background: #FFC107; color: #000; }
-    button[data-color="KIRMIZI"] { background: #DC3545; }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
-    #score {
-      font-size: 1.1rem;
-      margin-bottom: 10px;
-    }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
 
-    #feedback {
-      font-size: 1.1rem;
-      font-weight: bold;
-      min-height: 1.5em;
-    }
-  </style>
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .progress-container {
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 10px;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            height: 20px;
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .progress-text {
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .section-title {
+            background: rgba(255,255,255,0.9);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .question-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .error-description {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            border-left: 5px solid #ff6b6b;
+            font-weight: 500;
+        }
+
+        .color-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .color-btn {
+            padding: 20px;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            border: 3px solid transparent;
+        }
+
+        .color-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .btn-red {
+            background: #dc3545;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        .btn-red:hover {
+            background: #c82333;
+        }
+
+        .btn-yellow {
+            background: #ffc107;
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            color: #212529 !important;
+            text-shadow: none !important;
+        }
+
+        .btn-yellow:hover {
+            background: #e0a800;
+        }
+
+        .btn-blue {
+            background: #007bff;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+        }
+
+        .btn-blue:hover {
+            background: #0056b3;
+        }
+
+        .btn-green {
+            background: #28a745;
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+        }
+
+        .btn-green:hover {
+            background: #1e7e34;
+        }
+
+        .feedback {
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.1rem;
+            text-align: center;
+            font-weight: bold;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .feedback.correct {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .feedback.incorrect {
+            background: linear-gradient(135deg, #f8d7da, #f1b0b7);
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .error-counters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .error-counter {
+            background: rgba(255,255,255,0.9);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .results {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .trophy {
+            font-size: 5rem;
+            margin: 20px 0;
+            animation: bounce 2s infinite;
+        }
+
+        .failed {
+            color: #dc3545;
+        }
+
+        .passed {
+            color: #28a745;
+        }
+
+        .champion {
+            color: #ffd700;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-30px); }
+            60% { transform: translateY(-15px); }
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .error-description {
+                font-size: 1.1rem;
+            }
+            
+            .color-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>Direksiyon Sınavı – Hata Renk Oyunu</h1>
-  <div id="score">Puan: 0</div>
-  <div id="question">Yükleniyor...</div>
-  <div class="buttons">
-    <button class="color-btn" data-color="MAVİ">Mavi</button>
-    <button class="color-btn" data-color="SARI">Sarı</button>
-    <button class="color-btn" data-color="KIRMIZI">Kırmızı</button>
-  </div>
-  <div id="feedback"></div>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Direksiyon Sınavı Simülasyon Oyunu</h1>
+            <p>B Sınıfı Manuel Vites Sınavı - Türkiye</p>
+        </div>
 
-  <script>
-    // Tüm hata verileri (metin + renk)
-    const errors = [
-      // I. Bölüm
-      { text: "Aracın kaputunu açamıyor.", color: "MAVİ" },
-      { text: "Akünün yerini gösteremiyor.", color: "MAVİ" },
-      { text: "Motor yağı konulma yerini ve/veya yağ ölçüm çubuğunu gösteremiyor.", color: "MAVİ" },
-      { text: "Motor soğutma suyu deposunu gösteremiyor.", color: "MAVİ" },
-      { text: "Cam silecek suyunun konulma yerini gösteremiyor.", color: "MAVİ" },
-      { text: "Aracın bagajını açamıyor, stepne/araç kiti takımı, kriko, bijon anahtarı, reflektör ve ilkyardım çantasını gösteremiyor.", color: "MAVİ" },
-      { text: "Lastiklerin havalarının yeterli olup olmadığını gözle veya ayakla kontrol etmiyor.", color: "MAVİ" },
-      { text: "Yağ ve hararet göstergelerini gösteremiyor ve/veya hangi durumda tehlike ifade ettiklerini bilmiyor.", color: "MAVİ" },
-      { text: "Yakıt göstergesinin yerini gösteremiyor.", color: "MAVİ" },
-      { text: "Hız ve devir göstergelerini gösteremiyor.", color: "MAVİ" },
-      { text: "Uzun/kısa far, korna, cam silecek kolu, sinyal kolu ve diğer kumanda kollarını gösteremiyor.", color: "MAVİ" },
-      { text: "Araç içi aydınlatma lambalarını açıp kapatamıyor.", color: "MAVİ" },
-      { text: "Dış ve iç aynaların ayar yerlerini gösteremiyor.", color: "MAVİ" },
-      { text: "El frenini ve ayak fren pedalını gösteremiyor.", color: "MAVİ" },
-      { text: "Gaz ve debriyaj pedallarını gösteremiyor.", color: "MAVİ" },
-      { text: "Aracın kaç vitesli olduğunu bilmiyor.", color: "MAVİ" },
-      { text: "Otomatik vitesli araçlarda P, R, N ve D harflerinin ne anlama geldiğini bilmiyor.", color: "MAVİ" },
-      // II. Bölüm – sadece örnekler (tam listeyi ekleyebilirsiniz)
-      { text: "Araca bindiğinde koltuk ayarlarını kontrol etmiyor.", color: "SARI" },
-      { text: "Araca bindiğinde ayna ayarlarını kontrol etmiyor.", color: "SARI" },
-      { text: "Emniyet kemerini takmıyor.", color: "KIRMIZI" },
-      { text: "Alkol, uyuşturucu veya uyarıcı madde etkisinde olduğu gözlemlendi.", color: "KIRMIZI" },
-      { text: "Aracı çalıştırmadan önce debriyaja basmıyor veya vitesi boşa almıyor.", color: "SARI" },
-      { text: "Aracı çalıştıramıyor.", color: "SARI" },
-      { text: "Aracı hareket ettirmeden önce el frenini indirmiyor.", color: "SARI" },
-      { text: "Kalkış yapmadan önce aynaları ile trafiği kontrol etmiyor.", color: "KIRMIZI" },
-      { text: "Kalkış yaparken omuz üstü bakış ile kör nokta kontrolü yapmıyor.", color: "SARI" },
-      { text: "Kalkış yaparken zamanında ve/veya doğru yöne sinyal vermiyor.", color: "KIRMIZI" },
-      { text: "Belirlenmiş alanın dışına çıkıyor, konilere dokunuyor/çarpıyor.", color: "KIRMIZI" },
-      { text: "Kalkışta trafik akışı ile uyumlu hareket edemiyor.", color: "SARI" },
-      { text: "Koniler arasına tek hamlede veya ikinci hakkında giremiyor.", color: "KIRMIZI" },
-      { text: "Geri giderken aracın tamponu kaldırım hizasını geçiyor.", color: "KIRMIZI" },
-      // ... Devamını ekleyebilirsiniz ...
-    ];
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            <div class="progress-text" id="progressText">Başlangıç</div>
+        </div>
 
-    // Oyun durumu
-    let currentError = null;
-    let score = 0;
+        <div class="error-counters" id="errorCounters">
+            <div class="error-counter">
+                🔴 Kırmızı: <span id="redCount">0</span>/1
+            </div>
+            <div class="error-counter">
+                🟡 Sarı: <span id="yellowCount">0</span>/2
+            </div>
+            <div class="error-counter">
+                🔵 Mavi: <span id="blueCount">0</span>/5
+            </div>
+            <div class="error-counter">
+                ✅ Doğru: <span id="correctCount">0</span>
+            </div>
+        </div>
 
-    // Eleman referansları
-    const questionEl = document.getElementById("question");
-    const scoreEl = document.getElementById("score");
-    const feedbackEl = document.getElementById("feedback");
-    const buttons = document.querySelectorAll("button.color-btn");
+        <div id="gameArea">
+            <!-- Oyun içeriği buraya gelecek -->
+        </div>
+    </div>
 
-    // Yeni soru oluşturma
-    function newQuestion() {
-      currentError = errors[Math.floor(Math.random() * errors.length)];
-      questionEl.textContent = currentError.text;
-      feedbackEl.textContent = "";
-    }
+    <script>
+        class DrivingExam {
+            constructor() {
+                this.currentQuestion = 0;
+                this.redErrors = 0;
+                this.yellowErrors = 0;
+                this.blueErrors = 0;
+                this.correctAnswers = 0;
+                this.examFailed = false;
+                this.examAttempts = 0;
+                this.wrongAnswers = [];
+                
+                this.sections = [
+                    "🔧 Araç Bilgisi Sorgulama",
+                    "🚗 Araca Binme ve Kontrol",
+                    "🔑 Araç Çalıştırma",
+                    "🏃 Kalkış Yapma",
+                    "🦶 Araç Kumanda Pedallarina İntibak",
+                    "🎯 Direksiyon Hakimiyeti",
+                    "🛣️ Şerit İzleme ve Değiştirme",
+                    "🔄 Kavşaklara Yaklaşma ve Dönüşler",
+                    "🚦 Araç Seyir Halindeyken Değerlendirilen Davranışlar",
+                    "🚗 Akan Trafikte Kalkış",
+                    "⚡ Hız Kuralları",
+                    "🌱 Çevreye Duyarlı ve Ekonomik Araç Kullanma",
+                    "🏃 Önündeki Aracı Geçme (Sollama)",
+                    "🅿️ Duraklama ve Park Etme",
+                    "🎯 Genel Değerlendirme"
+                ];
 
-    // Buton tıklama işlemleri
-    buttons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        const selected = btn.dataset.color;
-        if (!currentError) return;
+                // PDF sıralamasına göre sorular
+                this.questions = [
+                    // I - ARAÇ BİLGİSİ SORGULAMA BÖLÜMÜ (Mavi)
+                    { text: "Lastiklerin havalarının yeterli olup olmadığını gözle veya ayakla kontrol etmiyor.", correct: "blue", section: 0 },
+                    { text: "Aracın kaputunu açıp akünün yerini gösteremiyor.", correct: "blue", section: 0 },
+                    { text: "Motor yağı ve motor suyu konulma yerini gösteremiyor.", correct: "blue", section: 0 },
+                    { text: "Cam silecek suyunun konulma yerini gösteremiyor.", correct: "blue", section: 0 },
+                    { text: "Yakıt göstergesinin yerini gösteremiyor.", correct: "blue", section: 0 },
+                    { text: "Araç içi aydınlatma lambalarını açıp kapatamıyor.", correct: "blue", section: 0 },
+                    { text: "Aracın bagajını açıp; stepne, kriko, bijon anahtarı, reflektör ve ilkyardım çantasını gösteremiyor.", correct: "blue", section: 0 },
+                    { text: "Yağ ve hararet göstergelerini gösteremiyor. Hangi durumda tehlike ifade ettiklerini bilmiyor.", correct: "blue", section: 0 },
+                    { text: "Dış ve iç aynaların ayar yerlerini gösteremiyor.", correct: "blue", section: 0 },
+                    { text: "Uzun/kısa far, korna, cam silecek ve diğer kumanda kollarını gösteremiyor.", correct: "blue", section: 0 },
+                    { text: "Sinyal kolunu gösteremiyor.", correct: "blue", section: 0 },
+                    { text: "Elfrenini ve ayak fren pedalını gösteremiyor.", correct: "blue", section: 0 },
+                    { text: "Gaz ve debriyaj pedallarını gösteremiyor.", correct: "blue", section: 0 },
+                    { text: "Aracın kaç vitesli olduğunu bilmiyor.", correct: "blue", section: 0 },
 
-        if (selected === currentError.color) {
-          score += 10; // doğruysa +10 puan
-          feedbackEl.textContent = "Doğru!";
-          feedbackEl.style.color = "green";
-        } else {
-          score -= 5; // yanlışsa -5 puan
-          feedbackEl.textContent = `Yanlış! Doğru cevap: ${currentError.color}`;
-          feedbackEl.style.color = "#d33";
+                    // Araca Binme Kontrolleri (Sarı)
+                    { text: "Araca bindiğinde koltuk ayarlarını kontrol etmiyor.", correct: "yellow", section: 1 },
+                    { text: "Araca bindiğinde ayna ayarlarını kontrol etmiyor.", correct: "yellow", section: 1 },
+
+                    // ARAÇ ÇALIŞTIRMA (Kırmızı)
+                    { text: "Alkol, uyuşturucu veya uyarıcı maddelerin etkisinde olduğu gözlemlendi.", correct: "red", section: 2 },
+                    { text: "Emniyet kemerini takmıyor.", correct: "red", section: 2 },
+                    { text: "Aracı çalıştırmadan önce debriyaja basmıyor veya vitesi boşa almıyor.", correct: "red", section: 2 },
+                    { text: "Aracı çalıştıramıyor.", correct: "red", section: 2 },
+                    { text: "Araç çalıştığı halde kontak anahtarını marş kademesinde tutmaya devam ediyor.", correct: "red", section: 2 },
+
+                    // KALKIŞ YAPMA (ARACI HAREKETE GEÇİRME) (Kırmızı/Sarı)
+                    { text: "Aracı hareket ettirmeden önce elfrenini indirmiyor.", correct: "red", section: 3 },
+                    { text: "Kalkışı doğru vitesle yapmıyor.", correct: "red", section: 3 },
+                    { text: "Kalkış yapmadan önce aynaları ile trafiği kontrol etmiyor.", correct: "red", section: 3 },
+                    { text: "Kalkış yaparken omuz üstü bakış ile kör nokta kontrolü yapmıyor.", correct: "red", section: 3 },
+                    { text: "Kalkış yaparken sinyal vermiyor.", correct: "red", section: 3 },
+                    { text: "Kalkış yaparken aracı sarsıyor.", correct: "red", section: 3 },
+                    { text: "Kalkış yaparken motoru stop ettiriyor.", correct: "red", section: 3 },
+                    { text: "Trafiği tehlikeye düşürecek şekilde hızlı ve kontrolsüz kalkış yapıyor.", correct: "red", section: 3 },
+                    { text: "Kalkışta trafik akışı ile uyumlu hareket edemiyor.", correct: "yellow", section: 3 },
+                    { text: "Kalkış yaptıktan sonra aracı doğru şeride konumlandıramıyor.", correct: "yellow", section: 3 },
+
+                    // ARAÇ KUMANDA PEDALLARINA İNTİBAK (Kırmızı/Sarı)
+                    { text: "Vites değiştirirken debriyaj pedalına tam basmıyor.", correct: "red", section: 4 },
+                    { text: "Vites değiştirirken gaz pedalını doğru kullanamıyor.", correct: "yellow", section: 4 },
+                    { text: "Vites değiştirirken doğru sıralamaya uymuyor.", correct: "yellow", section: 4 },
+                    { text: "Vites değiştirirken aracın kontrolünü kaybediyor.", correct: "red", section: 4 },
+                    { text: "Seyir halideyken yola bakmayı bırakıp vites koluna bakarak vites değiştiriyor.", correct: "yellow", section: 4 },
+                    { text: "Gaz ve frene tam intibak edemiyor.", correct: "red", section: 4 },
+                    { text: "Hızlanma ve yavaşlamalarda aracın hızını ayarlayamıyor.", correct: "red", section: 4 },
+
+                    // DİREKSİYON HAKİMİYETİ (Sarı)
+                    { text: "Direksiyon simidini doğru pozisyonda tutmuyor.", correct: "yellow", section: 5 },
+                    { text: "Aracı kontrol edemiyor, sağa sola savuruyor.", correct: "yellow", section: 5 },
+                    { text: "Aracı şerit içinde gezdiriyor.", correct: "yellow", section: 5 },
+
+                    // ŞERİT İZLEME VE DEĞİŞTİRME (Kırmızı/Sarı)
+                    { text: "Aracı şerit çizgilerinin içerisinde kullanamıyor, iki şeridi birden kullanıyor.", correct: "red", section: 6 },
+                    { text: "Şerit değiştirmeden önce aynaları ile trafiği kontrol etmiyor.", correct: "red", section: 6 },
+                    { text: "Şerit değiştirmeden önce omuz üstü bakış ile kör nokta kontrolü yapmıyor.", correct: "yellow", section: 6 },
+                    { text: "Şerit değiştirmeden önce zamanında sinyal vermiyor.", correct: "red", section: 6 },
+                    { text: "Şeridini değiştirirken yoldaki kesik ve sürekli çizgilerin anlamlarına uygun hareket etmiyor.", correct: "red", section: 6 },
+                    { text: "Şerit izleme kurallarına uymuyor, şerit çizgilerinin içinde araç kullanmıyor.", correct: "red", section: 6 },
+                    { text: "Emniyet şeridini ihlal ediyor.", correct: "red", section: 6 },
+                    { text: "Sürekli sol şeridi işgal ederek araç kullanıyor.", correct: "red", section: 6 },
+
+                    // KAVŞAKLARA YAKLAŞMA VE KAVŞAKLARDA SAĞA SOLA DÖNÜŞLER (Kırmızı)
+                    { text: "Kavşağa yaklaşırken yavaşlamıyor.", correct: "red", section: 7 },
+                    { text: "Kavşağa yaklaşırken döneceği yöne uygun şeride zamanında girmiyor.", correct: "red", section: 7 },
+                    { text: "Dönüş öncesinde zamanında sinyal vermiyor.", correct: "red", section: 7 },
+                    { text: "Kavşakta karşıdan ve yandan gelen araçları kontrol etmiyor.", correct: "red", section: 7 },
+                    { text: "Kavşakta geçiş hakkı kurallarına uymuyor.", correct: "red", section: 7 },
+                    { text: "Sağa sola dönüşlerden önce aynaları ile trafiği kontrol etmiyor.", correct: "red", section: 7 },
+                    { text: "Sağa sola dönüşlerden önce omuz üstü bakış ile kör nokta kontrolü yapmıyor.", correct: "red", section: 7 },
+                    { text: "Dönüşünü tamamladıktan sonra yönüne uygun şeride girmiyor.", correct: "red", section: 7 },
+
+                    // ARAÇ SEYİR HALİNDEYKEN DEĞERLENDİRİLECEK DİĞER DAVRANIŞLAR (Kırmızı)
+                    { text: "Işıklı trafik cihazları, trafik levhaları ve diğer trafik işaretlerine uymuyor.", correct: "red", section: 8 },
+                    { text: "Trafik polisini, yol ikaz ve değişikliklerini veya diğer yönlendirmeleri fark etmiyor.", correct: "red", section: 8 },
+                    { text: "Araç kullanımı sırasında araç hakimiyetini ve trafik güvenliğini tehlikeye düşürecek düzeyde heyecanlanıyor ve telaşlanıyor.", correct: "red", section: 8 },
+                    { text: "Geçiş üstünlüğüne sahip araçlara geçiş hakkı vermiyor.", correct: "red", section: 8 },
+                    { text: "Yaya ve okul geçitlerinde yayalara ve bisikletlilere geçiş hakkı vermiyor.", correct: "red", section: 8 },
+                    { text: "Hemzemin geçitlerde geçiş kurallarına uymuyor.", correct: "red", section: 8 },
+                    { text: "Araç seyir halindeyken aynalardan trafiğin akışını kontrol etmiyor.", correct: "yellow", section: 8 },
+                    { text: "Takip mesafesini kurallara uygun olarak ayarlayamıyor.", correct: "red", section: 8 },
+
+                    // II - AKAN TRAFİKTE KALKIŞ YAPMA (Kırmızı)
+                    { text: "Akan trafikte kalkışı doğru vitesle yapmıyor.", correct: "red", section: 9 },
+                    { text: "Akan trafikte kalkış yaparken aracı sarsıyor.", correct: "red", section: 9 },
+                    { text: "Akan trafikte kalkış yaparken motoru stop ettiriyor.", correct: "red", section: 9 },
+                    { text: "Akan trafikte kalkış yaparken omuz üstü bakış ile kör nokta kontrolü yapmıyor.", correct: "red", section: 9 },
+                    { text: "Akan trafikte kalkış yaparken aynaları ile trafiği kontrol etmiyor.", correct: "red", section: 9 },
+                    { text: "Akan trafikte kalkış yaparken sinyal vermiyor.", correct: "red", section: 9 },
+                    { text: "Akan trafikte trafiği tehlikeye düşürecek şekilde hızlı ve kontrolsüz çıkış yapıyor.", correct: "red", section: 9 },
+                    { text: "Akan trafikte kalkış yaptıktan sonra aracı doğru şeride konumlandıramıyor.", correct: "red", section: 9 },
+
+                    // HIZ KURALLARI (Kırmızı/Sarı)
+                    { text: "Hız levhalarına uymuyor, azami hız sınırını aşıyor.", correct: "red", section: 10 },
+                    { text: "Yaya, okul, bisiklet vb. geçitlere yaklaşırken hızını azaltmıyor.", correct: "red", section: 10 },
+                    { text: "Yol için belirlenen asgari hız sınırlarına uymuyor, çok yavaş araç kullanıyor.", correct: "yellow", section: 10 },
+
+                    // ÇEVREYE DUYARLI VE EKONOMİK ARAÇ KULLANMA (Sarı)
+                    { text: "Aracı yüksek devirde kullanıyor.", correct: "yellow", section: 11 },
+                    { text: "Kornayı gereksiz yere kullanıyor.", correct: "yellow", section: 11 },
+                    { text: "Duruş ve kalkışları ani yapıyor, aracı ekonomik kullanmıyor.", correct: "yellow", section: 11 },
+                    { text: "Sürekli aynı vitesle araç kullanıyor, zamanında vites değiştirmiyor.", correct: "yellow", section: 11 },
+
+                    // ÖNÜNDEKİ ARACI GEÇME (SOLLAMA YAPMA) (Kırmızı)
+                    { text: "Sollamaya başlamadan önce aynaları ile trafiği kontrol etmiyor.", correct: "red", section: 12 },
+                    { text: "Sollamaya başlamadan önce omuz üstü bakış ile kör nokta kontrolü yapmıyor.", correct: "red", section: 12 },
+                    { text: "Sollamaya başlamadan önce zamanında sinyal vermiyor.", correct: "red", section: 12 },
+                    { text: "Sollama yaparken önündeki veya diğer şeritlerdeki araçları tehlikeye atıyor.", correct: "red", section: 12 },
+                    { text: "Sollama yaparken kendi hızını ve diğer araçların hızlarını dikkate almıyor.", correct: "red", section: 12 },
+                    { text: "Kendisini geçmek isteyen araç olduğunda geçilme kurallarına uymuyor.", correct: "red", section: 12 },
+
+                    // DURAKLAMA VE PARK ETME (Kırmızı)
+                    { text: "Duraklama veya park yasağına uymuyor.", correct: "red", section: 13 },
+                    { text: "Duraklama veya park etmede sağ tarafa yanaşırken sinyal vermiyor.", correct: "red", section: 13 },
+                    { text: "Duraklamadan veya park etmeden önce aynaları ile trafik kontrolü yapmıyor.", correct: "red", section: 13 },
+                    { text: "Duraklama veya park etmede şeridin sağına veya kaldırıma yeterince yanaşmıyor.", correct: "red", section: 13 },
+                    { text: "Park etme esnasında kaldırıma çarpıyor.", correct: "red", section: 13 },
+                    { text: "Ani duruş yapıyor.", correct: "red", section: 13 },
+                    { text: "Aracı terketmeden önce motoru stop etmiyor.", correct: "red", section: 13 },
+                    { text: "Aracı güvenli bir şekilde terk etmiyor.", correct: "red", section: 13 },
+
+                    // GENEL DEĞERLENDİRME (Sarı/Kırmızı)
+                    { text: "Güzergahı bilmiyor, güzergah dışına çıkıyor.", correct: "yellow", section: 14 },
+                    { text: "Komisyon başkanının telsizle verdiği talimatlara uymuyor.", correct: "red", section: 14 },
+                    { text: "Genel olarak araç kullanma becerisi zayıf.", correct: "red", section: 14 }
+                ];
+
+                this.init();
+            }
+
+            init() {
+                this.updateProgress();
+                this.showQuestion();
+            }
+
+            updateProgress() {
+                const progress = (this.currentQuestion / this.questions.length) * 100;
+                document.getElementById('progressBar').style.width = progress + '%';
+                document.getElementById('progressText').textContent = 
+                    `Soru ${this.currentQuestion + 1} / ${this.questions.length}`;
+                
+                document.getElementById('redCount').textContent = this.redErrors;
+                document.getElementById('yellowCount').textContent = this.yellowErrors;
+                document.getElementById('blueCount').textContent = this.blueErrors;
+                document.getElementById('correctCount').textContent = this.correctAnswers;
+            }
+
+            showQuestion() {
+                if (this.currentQuestion >= this.questions.length) {
+                    this.showResults();
+                    return;
+                }
+
+                const question = this.questions[this.currentQuestion];
+                const gameArea = document.getElementById('gameArea');
+                
+                gameArea.innerHTML = `
+                    <div class="section-title">
+                        ${this.sections[question.section]}
+                    </div>
+                    <div class="question-card">
+                        <div class="error-description">
+                            ⚠️ ${question.text}
+                        </div>
+                        <div class="color-options">
+                            <button class="color-btn btn-red" onclick="game.checkAnswer('red')">
+                                🔴 KIRMIZI HATA<br>
+                                <small>(1 hatada kalır)</small>
+                            </button>
+                            <button class="color-btn btn-yellow" onclick="game.checkAnswer('yellow')">
+                                🟡 SARI HATA<br>
+                                <small>(2 hatada kalır)</small>
+                            </button>
+                            <button class="color-btn btn-blue" onclick="game.checkAnswer('blue')">
+                                🔵 MAVİ HATA<br>
+                                <small>(5 hatada kalır)</small>
+                            </button>
+                            <button class="color-btn btn-green" onclick="game.checkAnswer('green')">
+                                ✅ HATA DEĞİL<br>
+                                <small>(Normal davranış)</small>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            checkAnswer(selectedColor) {
+                const question = this.questions[this.currentQuestion];
+                const correct = selectedColor === question.correct;
+                
+                if (correct) {
+                    this.correctAnswers++;
+                    this.showFeedback(true, "Doğru! 🎉 Bu hatanın kategorisini doğru bildiniz.");
+                } else {
+                    this.wrongAnswers.push({
+                        question: question.text,
+                        correct: question.correct,
+                        selected: selectedColor
+                    });
+                    
+                    const explanations = {
+                        red: "KIRMIZI HATA - Trafiği ciddi şekilde tehlikeye atan, tek seferde sınavdan kaldıran hatalar",
+                        yellow: "SARI HATA - Orta düzeyde hatalar, 2 tanesi sınavdan kaldırır",
+                        blue: "MAVİ HATA - Araç bilgisi eksiklikleri, 5 tanesi sınavdan kaldırır",
+                        green: "Bu durum bir hata değil, normal davranıştır"
+                    };
+                    
+                    this.showFeedback(false, `Yanlış! ❌<br><br>
+                        <strong>Doğru Cevap:</strong> ${explanations[question.correct]}<br><br>
+                        <strong>Seçtiğiniz:</strong> ${explanations[selectedColor]}`);
+                    
+                    // Hata sayacını artır
+                    if (question.correct === 'red') this.redErrors++;
+                    else if (question.correct === 'yellow') this.yellowErrors++;
+                    else if (question.correct === 'blue') this.blueErrors++;
+                }
+
+                // Sınavdan kalma kontrolü
+                if (this.redErrors >= 1 || this.yellowErrors >= 2 || this.blueErrors >= 5) {
+                    this.examFailed = true;
+                }
+            }
+
+            showFeedback(isCorrect, message) {
+                const gameArea = document.getElementById('gameArea');
+                const feedbackClass = isCorrect ? 'correct' : 'incorrect';
+                
+                gameArea.innerHTML += `
+                    <div class="feedback ${feedbackClass}">
+                        ${message}
+                    </div>
+                    <button class="next-btn" onclick="game.nextQuestion()">
+                        ${this.examFailed ? 'Sınavı Bitir 🏁' : 'Sonraki Soru ➡️'}
+                    </button>
+                `;
+            }
+
+            nextQuestion() {
+                if (this.examFailed) {
+                    this.showResults();
+                    return;
+                }
+                
+                this.currentQuestion++;
+                this.updateProgress();
+                this.showQuestion();
+            }
+
+            showResults() {
+                if (this.examFailed || this.redErrors >= 1 || this.yellowErrors >= 2 || this.blueErrors >= 5) {
+                    this.examAttempts++;
+                    this.showFailedResult();
+                } else if (this.wrongAnswers.length === 0) {
+                    this.showChampionResult();
+                } else {
+                    this.showPassedResult();
+                }
+            }
+
+            showFailedResult() {
+                const gameArea = document.getElementById('gameArea');
+                const reasons = [];
+                
+                if (this.redErrors >= 1) reasons.push(`🔴 ${this.redErrors} kırmızı hata`);
+                if (this.yellowErrors >= 2) reasons.push(`🟡 ${this.yellowErrors} sarı hata`);
+                if (this.blueErrors >= 5) reasons.push(`🔵 ${this.blueErrors} mavi hata`);
+                
+                gameArea.innerHTML = `
+                    <div class="results failed">
+                        <div class="trophy">💥</div>
+                        <h2>Sınavdan Kaldınız!</h2>
+                        <p><strong>Kalma Nedeni:</strong> ${reasons.join(', ')}</p>
+                        <p>Toplam Doğru: ${this.correctAnswers}/${this.questions.length}</p>
+                        <p>Sınav Deneme Sayısı: ${this.examAttempts}</p>
+                        <button class="restart-btn" onclick="location.reload()">
+                            🔄 Tekrar Dene
+                        </button>
+                    </div>
+                `;
+            }
+
+            showPassedResult() {
+                const gameArea = document.getElementById('gameArea');
+                
+                let wrongAnswersHtml = '';
+                if (this.wrongAnswers.length > 0) {
+                    wrongAnswersHtml = '<h3>Yanlış Cevaplarınız:</h3>';
+                    this.wrongAnswers.forEach((wrong, index) => {
+                        const colors = {red: '🔴', yellow: '🟡', blue: '🔵', green: '✅'};
+                        wrongAnswersHtml += `
+                            <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 8px; text-align: left;">
+                                <strong>${index + 1}.</strong> ${wrong.question}<br>
+                                <small>Doğru: ${colors[wrong.correct]} | Seçtiğiniz: ${colors[wrong.selected]}</small>
+                            </div>
+                        `;
+                    });
+                }
+
+                gameArea.innerHTML = `
+                    <div class="results passed">
+                        <div class="trophy">🎉</div>
+                        <h2>Tebrikler! Sınavı Geçtiniz!</h2>
+                        <p>Toplam Doğru: ${this.correctAnswers}/${this.questions.length}</p>
+                        <p>Yanlış: ${this.wrongAnswers.length}</p>
+                        <div style="margin: 20px 0;">
+                            🔴 Kırmızı: ${this.redErrors}/1 | 
+                            🟡 Sarı: ${this.yellowErrors}/2 | 
+                            🔵 Mavi: ${this.blueErrors}/5
+                        </div>
+                        ${wrongAnswersHtml}
+                        <button class="restart-btn" onclick="location.reload()">
+                            🔄 Yeni Sınav
+                        </button>
+                    </div>
+                `;
+            }
+
+            showChampionResult() {
+                const gameArea = document.getElementById('gameArea');
+                
+                gameArea.innerHTML = `
+                    <div class="results champion">
+                        <div class="trophy">🏆</div>
+                        <h2>ŞAMPİYON!</h2>
+                        <p>Mükemmel! Tüm soruları doğru cevapladınız!</p>
+                        <p>Toplam Doğru: ${this.correctAnswers}/${this.questions.length}</p>
+                        <p>🎯 %100 Başarı Oranı</p>
+                        <div style="font-size: 1.2rem; margin: 20px 0;">
+                            Gerçek sınavda da bu başarıyı gösterebilirsiniz! 🚗✨
+                        </div>
+                        <button class="restart-btn" onclick="location.reload()">
+                            🔄 Yeni Meydan Okuma
+                        </button>
+                    </div>
+                `;
+            }
         }
-        scoreEl.textContent = `Puan: ${score}`;
-        // 1 saniye sonra yeni soru
-        setTimeout(newQuestion, 1000);
-      });
-    });
 
-    // Oyunu başlat
-    newQuestion();
-  </script>
+        // Oyunu başlat
+        const game = new DrivingExam();
+    </script>
 </body>
 </html>
